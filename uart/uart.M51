@@ -1,0 +1,699 @@
+BL51 BANKED LINKER/LOCATER V6.22                                                        03/23/2021  21:37:32  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.22, INVOKED BY:
+D:\PROGRAM FILES\KEIL\C51\BIN\BL51.EXE main.obj, system.obj TO uart RAMSIZE (256)
+
+
+MEMORY MODEL: COMPACT
+
+
+INPUT MODULES INCLUDED:
+  main.obj (MAIN)
+  system.obj (SYSTEM)
+  D:\PROGRAM FILES\KEIL\C51\LIB\C51C.LIB (?C_STARTUP)
+  D:\PROGRAM FILES\KEIL\C51\LIB\C51C.LIB (?C?COPY)
+  D:\PROGRAM FILES\KEIL\C51\LIB\C51C.LIB (?C?CLDPTR)
+  D:\PROGRAM FILES\KEIL\C51\LIB\C51C.LIB (?C?CLDOPTR)
+  D:\PROGRAM FILES\KEIL\C51\LIB\C51C.LIB (?C?CSTPTR)
+  D:\PROGRAM FILES\KEIL\C51\LIB\C51C.LIB (?C?CCASE)
+  D:\PROGRAM FILES\KEIL\C51\LIB\C51C.LIB (?C_INIT)
+
+
+LINK MAP OF MODULE:  uart (MAIN)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            IDATA   0008H     0001H     UNIT         ?STACK
+
+            * * * * * * *  X D A T A   M E M O R Y  * * * * * * *
+            XDATA   0000H     000CH     INPAGE       ?PD?MAIN
+            XDATA   000CH     0002H     INPAGE       ?PD?_SET_WIFI_UART_BYTE?SYSTEM
+            XDATA   000EH     0007H     INPAGE       ?PD?_SET_WIFI_UART_BUFFER?SYSTEM
+            XDATA   0015H     0006H     INPAGE       ?PD?_GET_CHECK_SUM?SYSTEM
+            XDATA   001BH     0005H     INPAGE       ?PD?_WIFI_UART_WRITE_DATA?SYSTEM
+            XDATA   0020H     0002H     INPAGE       ?PD?_WIFI_UART_WRITE_FRAME?SYSTEM
+            XDATA   0022H     0078H     INPAGE       ?PD?SYSTEM
+            XDATA   009AH     000BH     INPAGE       ?PD?PRODUCT_INFO_UPDATE?SYSTEM
+            XDATA   00A5H     0001H     INPAGE       ?PD?_GET_DOWMLOAD_DPID_INDEX?SYSTEM
+            XDATA   00A6H     0007H     INPAGE       ?PD?_DATA_POINT_HANDLE?SYSTEM
+            XDATA   00ADH     0009H     INPAGE       ?PD?_DATA_HANDLE?SYSTEM
+            XDATA   00B6H     0003H     INPAGE       _PDATA_GROUP_
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+                    0003H     07FDH                  *** GAP ***
+            CODE    0800H     0174H     UNIT         ?C?LIB_CODE
+            CODE    0974H     0104H     UNIT         ?PR?PRODUCT_INFO_UPDATE?SYSTEM
+            CODE    0A78H     00F1H     UNIT         ?PR?_DATA_HANDLE?SYSTEM
+            CODE    0B69H     008CH     UNIT         ?C_C51STARTUP
+            CODE    0BF5H     0077H     UNIT         ?PR?MAIN?MAIN
+            CODE    0C6CH     0070H     UNIT         ?PR?_DATA_POINT_HANDLE?SYSTEM
+            CODE    0CDCH     0060H     UNIT         ?PR?_SET_WIFI_UART_BUFFER?SYSTEM
+            CODE    0D3CH     005DH     UNIT         ?PR?TAKE_BYTE_RXBUFF?SYSTEM
+            CODE    0D99H     0059H     UNIT         ?PR?_WIFI_UART_WRITE_FRAME?SYSTEM
+            CODE    0DF2H     0057H     UNIT         ?PR?_WIFI_UART_WRITE_DATA?SYSTEM
+            CODE    0E49H     0045H     UNIT         ?PR?_GET_CHECK_SUM?SYSTEM
+            CODE    0E8EH     003BH     UNIT         ?CO?SYSTEM
+BL51 BANKED LINKER/LOCATER V6.22                                                      03/23/2021  21:37:32  PAGE 2
+
+
+            CODE    0EC9H     002FH     UNIT         ?PR?WITH_DATA_RXBUFF?SYSTEM
+            CODE    0EF8H     0025H     UNIT         ?PR?HEAT_BEAT_CHECK?SYSTEM
+            CODE    0F1DH     0024H     UNIT         ?PR?_GET_DOWMLOAD_DPID_INDEX?SYSTEM
+            CODE    0F41H     0021H     UNIT         ?PR?_SET_WIFI_UART_BYTE?SYSTEM
+            CODE    0F62H     0014H     UNIT         ?PR?SEND_STR?MAIN
+            CODE    0F76H     0014H     UNIT         ?CO?MAIN
+            CODE    0F8AH     0013H     UNIT         ?PR?GET_STR?MAIN
+            CODE    0F9DH     0013H     UNIT         ?C_INITSEG
+            CODE    0FB0H     0012H     UNIT         ?PR?_DELAYMS?MAIN
+            CODE    0FC2H     000AH     UNIT         ?PR?GET_MCU_WIFI_MODE?SYSTEM
+
+
+
+OVERLAY MAP OF MODULE:   uart (MAIN)
+
+
+SEGMENT                                       PDATA_GROUP
+  +--> CALLED SEGMENT                       START    LENGTH
+-----------------------------------------------------------
+?C_C51STARTUP                               -----    -----
+  +--> ?PR?MAIN?MAIN
+  +--> ?C_INITSEG
+
+?PR?MAIN?MAIN                               00B6H    0003H
+  +--> ?PR?_DELAYMS?MAIN
+  +--> ?PR?SEND_STR?MAIN
+  +--> ?PR?GET_STR?MAIN
+  +--> ?CO?MAIN
+
+?PR?SEND_STR?MAIN                           -----    -----
+  +--> ?CO?MAIN
+
+
+
+UNRESOLVED EXTERNAL SYMBOLS:
+   ?_DP_DOWNLOAD_HANDLE?BYTE
+   ?_MY_MEMCPY?BYTE
+   ALL_DATA_UPDATE
+   DOWNLOAD_CMD
+   GET_DOWNLOAD_CMD_TOTAL
+   _DP_DOWNLOAD_HANDLE
+   _MY_MEMCPY
+   _MY_STRLEN
+   _UART_TRANSMIT_OUTPUT
+   _WIFI_TEST_RESULT
+
+
+
+SYMBOL TABLE OF MODULE:  uart (MAIN)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        MAIN
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:00A0H         PUBLIC        P2
+  D:00A8H         PUBLIC        IE
+BL51 BANKED LINKER/LOCATER V6.22                                                      03/23/2021  21:37:32  PAGE 3
+
+
+  B:0098H.0       PUBLIC        RI
+  B:0098H.1       PUBLIC        TI
+  C:0BF5H         PUBLIC        main
+  D:0099H         PUBLIC        SBUF
+  D:0098H         PUBLIC        SCON
+  D:0089H         PUBLIC        TMOD
+  D:008DH         PUBLIC        TH1
+  D:008BH         PUBLIC        TL1
+  X:0000H         PUBLIC        tmp
+  B:0088H.6       PUBLIC        TR1
+  X:0001H         PUBLIC        temparray
+  C:0F62H         PUBLIC        send_str
+  C:0F80H         PUBLIC        str_send
+  X:000BH         PUBLIC        j
+  C:0FB0H         PUBLIC        _delayms
+  B:00A0H.7       PUBLIC        K1
+  C:0F8AH         PUBLIC        get_str
+  C:0F76H         PUBLIC        str_get
+  -------         PROC          MAIN
+  -------         DO            
+  X:00B6H         SYMBOL        count
+  X:00B7H         SYMBOL        flag
+  X:00B8H         SYMBOL        emptycount
+  -------         ENDDO         
+  C:0BF5H         LINE#         19
+  C:0BF5H         LINE#         20
+  C:0BF5H         LINE#         21
+  C:0BF9H         LINE#         22
+  C:0BFCH         LINE#         23
+  C:0BFFH         LINE#         24
+  C:0C02H         LINE#         25
+  C:0C05H         LINE#         27
+  C:0C07H         LINE#         28
+  C:0C09H         LINE#         29
+  C:0C09H         LINE#         30
+  C:0C09H         LINE#         33
+  C:0C0CH         LINE#         34
+  C:0C0CH         LINE#         35
+  C:0C11H         LINE#         36
+  C:0C14H         LINE#         37
+  C:0C14H         LINE#         38
+  C:0C17H         LINE#         39
+  C:0C17H         LINE#         40
+  C:0C1CH         LINE#         41
+  C:0C1EH         LINE#         42
+  C:0C21H         LINE#         43
+  C:0C21H         LINE#         44
+  C:0C24H         LINE#         46
+  C:0C28H         LINE#         47
+  C:0C28H         LINE#         48
+  C:0C39H         LINE#         49
+  C:0C39H         LINE#         50
+  C:0C3EH         LINE#         51
+  C:0C40H         LINE#         53
+  C:0C40H         LINE#         54
+  C:0C44H         LINE#         55
+  C:0C46H         LINE#         57
+BL51 BANKED LINKER/LOCATER V6.22                                                      03/23/2021  21:37:32  PAGE 4
+
+
+  C:0C48H         LINE#         58
+  C:0C48H         LINE#         59
+  C:0C53H         LINE#         60
+  C:0C5FH         LINE#         61
+  C:0C5FH         LINE#         62
+  C:0C62H         LINE#         63
+  C:0C66H         LINE#         64
+  C:0C69H         LINE#         65
+  C:0C69H         LINE#         66
+  C:0C6BH         LINE#         67
+  -------         ENDPROC       MAIN
+  -------         PROC          SEND_STR
+  -------         DO            
+  D:0007H         SYMBOL        i
+  -------         ENDDO         
+  C:0F62H         LINE#         69
+  C:0F62H         LINE#         70
+  C:0F62H         LINE#         71
+  C:0F64H         LINE#         72
+  C:0F64H         LINE#         73
+  C:0F64H         LINE#         74
+  C:0F6BH         LINE#         75
+  C:0F6EH         LINE#         76
+  C:0F70H         LINE#         77
+  C:0F71H         LINE#         78
+  C:0F75H         LINE#         79
+  -------         ENDPROC       SEND_STR
+  -------         PROC          GET_STR
+  C:0F8AH         LINE#         81
+  C:0F8AH         LINE#         82
+  C:0F8AH         LINE#         83
+  C:0F8DH         LINE#         84
+  C:0F8DH         LINE#         85
+  C:0F8FH         LINE#         86
+  C:0F9CH         LINE#         87
+  C:0F9CH         LINE#         88
+  -------         ENDPROC       GET_STR
+  -------         PROC          _DELAYMS
+  D:0007H         SYMBOL        ms
+  -------         DO            
+  D:0006H         SYMBOL        i
+  -------         ENDDO         
+  C:0FB0H         LINE#         90
+  C:0FB0H         LINE#         91
+  C:0FB0H         LINE#         93
+  C:0FB6H         LINE#         94
+  C:0FB6H         LINE#         95
+  C:0FC1H         LINE#         96
+  C:0FC1H         LINE#         97
+  -------         ENDPROC       _DELAYMS
+  -------         ENDMOD        MAIN
+
+  -------         MODULE        SYSTEM
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  C:0F1DH         SYMBOL        _get_dowmload_dpid_index
+  C:0FC2H         SYMBOL        get_mcu_wifi_mode
+  C:0EF8H         SYMBOL        heat_beat_check
+BL51 BANKED LINKER/LOCATER V6.22                                                      03/23/2021  21:37:32  PAGE 5
+
+
+  X:0023H         PUBLIC        set_wifimode_flag
+  C:0F41H         PUBLIC        _set_wifi_uart_byte
+  C:0EC9H         PUBLIC        with_data_rxbuff
+  X:0024H         PUBLIC        stop_update_flag
+  C:0D3CH         PUBLIC        take_byte_rxbuff
+  X:0025H         PUBLIC        wifi_data_process_buf
+  X:0044H         PUBLIC        reset_wifi_flag
+  X:0045H         PUBLIC        wifi_uart_rx_buf
+  X:005CH         PUBLIC        wifi_uart_tx_buf
+  X:0093H         PUBLIC        rx_buf_in
+  C:0EBFH         SYMBOL        _?ix1000
+  X:0096H         PUBLIC        rx_buf_out
+  C:0D99H         PUBLIC        _wifi_uart_write_frame
+  C:0E49H         PUBLIC        _get_check_sum
+  C:0DF2H         SYMBOL        _wifi_uart_write_data
+  X:0099H         PUBLIC        wifi_work_state
+  C:0CE4H         PUBLIC        _set_wifi_uart_buffer
+  C:0A78H         PUBLIC        _data_handle
+  C:0C6CH         SYMBOL        _data_point_handle
+  C:0974H         SYMBOL        product_info_update
+  -------         PROC          _SET_WIFI_UART_BYTE
+  X:000CH         SYMBOL        dest
+  D:0005H         SYMBOL        byte
+  -------         DO            
+  D:0001H         SYMBOL        obj
+  -------         ENDDO         
+  C:0F41H         LINE#         34
+  C:0F48H         LINE#         35
+  C:0F48H         LINE#         36
+  C:0F4FH         LINE#         38
+  C:0F53H         LINE#         39
+  C:0F5CH         LINE#         41
+  C:0F61H         LINE#         42
+  -------         ENDPROC       _SET_WIFI_UART_BYTE
+  -------         PROC          L?0055
+  -------         ENDPROC       L?0055
+  -------         PROC          _SET_WIFI_UART_BUFFER
+  X:000EH         SYMBOL        dest
+  X:0010H         SYMBOL        src
+  X:0013H         SYMBOL        len
+  -------         DO            
+  D:0001H         SYMBOL        obj
+  -------         ENDDO         
+  C:0CE4H         LINE#         51
+  C:0CF5H         LINE#         52
+  C:0CF5H         LINE#         53
+  C:0CFCH         LINE#         55
+  C:0D26H         LINE#         57
+  C:0D36H         LINE#         58
+  C:0D3BH         LINE#         59
+  -------         ENDPROC       _SET_WIFI_UART_BUFFER
+  -------         PROC          _GET_CHECK_SUM
+  X:0015H         SYMBOL        pack
+  X:0018H         SYMBOL        pack_len
+  -------         DO            
+  D:0006H         SYMBOL        i
+  X:001AH         SYMBOL        check_sum
+BL51 BANKED LINKER/LOCATER V6.22                                                      03/23/2021  21:37:32  PAGE 6
+
+
+  -------         ENDDO         
+  C:0E49H         LINE#         67
+  C:0E59H         LINE#         68
+  C:0E59H         LINE#         70
+  C:0E5CH         LINE#         72
+  C:0E68H         LINE#         73
+  C:0E82H         LINE#         74
+  C:0E89H         LINE#         76
+  C:0E8DH         LINE#         77
+  -------         ENDPROC       _GET_CHECK_SUM
+  -------         PROC          _WIFI_UART_WRITE_DATA
+  X:001BH         SYMBOL        in
+  X:001EH         SYMBOL        len
+  C:0DF2H         LINE#         85
+  C:0E02H         LINE#         86
+  C:0E02H         LINE#         87
+  C:0E18H         LINE#         89
+  C:0E18H         LINE#         91
+  C:0E2AH         LINE#         92
+  C:0E3BH         LINE#         93
+  C:0E46H         LINE#         94
+  C:0E48H         LINE#         95
+  -------         ENDPROC       _WIFI_UART_WRITE_DATA
+  -------         PROC          _WIFI_UART_WRITE_FRAME
+  D:0007H         SYMBOL        fr_type
+  D:0005H         SYMBOL        fr_ver
+  X:0020H         SYMBOL        len
+  -------         DO            
+  D:0006H         SYMBOL        check_sum
+  -------         ENDDO         
+  C:0D99H         LINE#         104
+  C:0DA0H         LINE#         105
+  C:0DA0H         LINE#         106
+  C:0DA0H         LINE#         108
+  C:0DA5H         LINE#         109
+  C:0DA9H         LINE#         110
+  C:0DACH         LINE#         111
+  C:0DAFH         LINE#         112
+  C:0DBAH         LINE#         113
+  C:0DBDH         LINE#         115
+  C:0DC8H         LINE#         116
+  C:0DDDH         LINE#         117
+  C:0DE9H         LINE#         119
+  -------         ENDPROC       _WIFI_UART_WRITE_FRAME
+  -------         PROC          HEAT_BEAT_CHECK
+  -------         DO            
+  D:0007H         SYMBOL        length
+  X:0022H         SYMBOL        mcu_reset_state
+  -------         ENDDO         
+  C:0EF8H         LINE#         127
+  C:0EF8H         LINE#         128
+  C:0EF8H         LINE#         129
+  C:0EFAH         LINE#         132
+  C:0EFFH         LINE#         133
+  C:0F04H         LINE#         134
+  C:0F09H         LINE#         135
+  C:0F0BH         LINE#         136
+BL51 BANKED LINKER/LOCATER V6.22                                                      03/23/2021  21:37:32  PAGE 7
+
+
+  C:0F12H         LINE#         137
+  C:0F12H         LINE#         139
+  -------         ENDPROC       HEAT_BEAT_CHECK
+  -------         PROC          PRODUCT_INFO_UPDATE
+  -------         DO            
+  X:009AH         SYMBOL        length
+  X:009BH         SYMBOL        str
+  -------         ENDDO         
+  C:0974H         LINE#         147
+  C:0974H         LINE#         148
+  C:0974H         LINE#         149
+  C:0978H         LINE#         150
+  C:0989H         LINE#         152
+  C:09A4H         LINE#         153
+  C:09BFH         LINE#         154
+  C:09E2H         LINE#         155
+  C:0A05H         LINE#         156
+  C:0A28H         LINE#         157
+  C:0A4BH         LINE#         175
+  C:0A6EH         LINE#         177
+  -------         ENDPROC       PRODUCT_INFO_UPDATE
+  -------         PROC          GET_MCU_WIFI_MODE
+  -------         DO            
+  D:0007H         SYMBOL        length
+  -------         ENDDO         
+  C:0FC2H         LINE#         185
+  C:0FC2H         LINE#         186
+  C:0FC2H         LINE#         187
+  C:0FC3H         LINE#         196
+  -------         ENDPROC       GET_MCU_WIFI_MODE
+  -------         PROC          _GET_DOWMLOAD_DPID_INDEX
+  X:00A5H         SYMBOL        dpid
+  -------         DO            
+  D:0006H         SYMBOL        index
+  D:0007H         SYMBOL        total
+  -------         ENDDO         
+  C:0F1DH         LINE#         204
+  C:0F21H         LINE#         205
+  C:0F21H         LINE#         207
+  C:0F24H         LINE#         209
+  C:0F2BH         LINE#         210
+  C:0F3BH         LINE#         211
+  C:0F3BH         LINE#         212
+  C:0F3BH         LINE#         213
+  C:0F3EH         LINE#         215
+  C:0F40H         LINE#         216
+  -------         ENDPROC       _GET_DOWMLOAD_DPID_INDEX
+  -------         PROC          _DATA_POINT_HANDLE
+  X:00A6H         SYMBOL        value
+  -------         DO            
+  X:00A9H         SYMBOL        dp_id
+  D:0007H         SYMBOL        index
+  X:00AAH         SYMBOL        dp_type
+  D:0007H         SYMBOL        ret
+  X:00ABH         SYMBOL        dp_len
+  -------         ENDDO         
+  C:0C6CH         LINE#         223
+BL51 BANKED LINKER/LOCATER V6.22                                                      03/23/2021  21:37:32  PAGE 8
+
+
+  C:0C76H         LINE#         224
+  C:0C76H         LINE#         230
+  C:0C7CH         LINE#         231
+  C:0C85H         LINE#         232
+  C:0C91H         LINE#         233
+  C:0CA2H         LINE#         235
+  C:0CA7H         LINE#         237
+  C:0CB5H         LINE#         239
+  C:0CB8H         LINE#         240
+  C:0CB8H         LINE#         241
+  C:0CDBH         LINE#         242
+  C:0CDBH         LINE#         244
+  C:0CDBH         LINE#         245
+  -------         ENDPROC       _DATA_POINT_HANDLE
+  -------         PROC          _DATA_HANDLE
+  X:00ADH         SYMBOL        offset
+  -------         DO            
+  X:00AFH         SYMBOL        dp_len
+  X:00B1H         SYMBOL        ret
+  X:00B2H         SYMBOL        i
+  X:00B4H         SYMBOL        total_len
+  D:0007H         SYMBOL        cmd_type
+  D:0006H         SYMBOL        result
+  D:0005H         SYMBOL        rssi
+  -------         ENDDO         
+  C:0A78H         LINE#         391
+  C:0A7FH         LINE#         392
+  C:0A7FH         LINE#         406
+  C:0A84H         LINE#         424
+  C:0AA6H         LINE#         425
+  C:0AA6H         LINE#         426
+  C:0AA6H         LINE#         427
+  C:0AA9H         LINE#         428
+  C:0AA9H         LINE#         430
+  C:0AA9H         LINE#         431
+  C:0AACH         LINE#         432
+  C:0AACH         LINE#         434
+  C:0AACH         LINE#         435
+  C:0AAFH         LINE#         436
+  C:0AAFH         LINE#         439
+  C:0AAFH         LINE#         440
+  C:0ABAH         LINE#         441
+  C:0AC4H         LINE#         448
+  C:0AC4H         LINE#         450
+  C:0AC4H         LINE#         451
+  C:0AC6H         LINE#         452
+  C:0AC8H         LINE#         454
+  C:0AC8H         LINE#         455
+  C:0ACDH         LINE#         456
+  C:0ACEH         LINE#         459
+  C:0ACEH         LINE#         460
+  C:0AE5H         LINE#         462
+  C:0AFCH         LINE#         463
+  C:0B12H         LINE#         464
+  C:0B22H         LINE#         466
+  C:0B3AH         LINE#         468
+  C:0B3AH         LINE#         470
+BL51 BANKED LINKER/LOCATER V6.22                                                      03/23/2021  21:37:32  PAGE 9
+
+
+  C:0B3AH         LINE#         472
+  C:0B3AH         LINE#         474
+  C:0B4EH         LINE#         475
+  C:0B50H         LINE#         476
+  C:0B50H         LINE#         478
+  C:0B50H         LINE#         479
+  C:0B53H         LINE#         480
+  C:0B53H         LINE#         557
+  C:0B53H         LINE#         558
+  C:0B5DH         LINE#         559
+  C:0B63H         LINE#         560
+  C:0B68H         LINE#         561
+  C:0B68H         LINE#         725
+  C:0B68H         LINE#         726
+  C:0B68H         LINE#         727
+  -------         ENDPROC       _DATA_HANDLE
+  -------         PROC          WITH_DATA_RXBUFF
+  C:0EC9H         LINE#         734
+  C:0EC9H         LINE#         735
+  C:0EC9H         LINE#         736
+  C:0EF2H         LINE#         737
+  C:0EF5H         LINE#         739
+  C:0EF7H         LINE#         740
+  -------         ENDPROC       WITH_DATA_RXBUFF
+  -------         PROC          TAKE_BYTE_RXBUFF
+  -------         DO            
+  D:0007H         SYMBOL        value
+  -------         ENDDO         
+  C:0D3CH         LINE#         747
+  C:0D3CH         LINE#         748
+  C:0D3CH         LINE#         751
+  C:0D64H         LINE#         753
+  C:0D76H         LINE#         755
+  C:0D83H         LINE#         756
+  C:0D83H         LINE#         758
+  C:0D98H         LINE#         759
+  C:0D98H         LINE#         761
+  C:0D98H         LINE#         762
+  -------         ENDPROC       TAKE_BYTE_RXBUFF
+  -------         ENDMOD        SYSTEM
+
+  -------         MODULE        ?C?COPY
+  C:08D0H         PUBLIC        ?C?COPY
+  -------         ENDMOD        ?C?COPY
+
+  -------         MODULE        ?C?CLDPTR
+  C:08F6H         PUBLIC        ?C?CLDPTR
+  -------         ENDMOD        ?C?CLDPTR
+
+  -------         MODULE        ?C?CLDOPTR
+  C:090FH         PUBLIC        ?C?CLDOPTR
+  -------         ENDMOD        ?C?CLDOPTR
+
+  -------         MODULE        ?C?CSTPTR
+  C:093CH         PUBLIC        ?C?CSTPTR
+  -------         ENDMOD        ?C?CSTPTR
+
+BL51 BANKED LINKER/LOCATER V6.22                                                      03/23/2021  21:37:32  PAGE 10
+
+
+  -------         MODULE        ?C?CCASE
+  C:094EH         PUBLIC        ?C?CCASE
+  -------         ENDMOD        ?C?CCASE
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_DATA_HANDLE?SYSTEM
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?WITH_DATA_RXBUFF?SYSTEM
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?TAKE_BYTE_RXBUFF?SYSTEM
+
+*** WARNING L1: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  GET_DOWNLOAD_CMD_TOTAL
+    MODULE:  system.obj (SYSTEM)
+
+*** WARNING L1: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  ALL_DATA_UPDATE
+    MODULE:  system.obj (SYSTEM)
+
+*** WARNING L1: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  _UART_TRANSMIT_OUTPUT
+    MODULE:  system.obj (SYSTEM)
+
+*** WARNING L1: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  _MY_MEMCPY
+    MODULE:  system.obj (SYSTEM)
+
+*** WARNING L1: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  ?_MY_MEMCPY?BYTE
+    MODULE:  system.obj (SYSTEM)
+
+*** WARNING L1: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  _WIFI_TEST_RESULT
+    MODULE:  system.obj (SYSTEM)
+
+*** WARNING L1: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  _MY_STRLEN
+    MODULE:  system.obj (SYSTEM)
+
+*** WARNING L1: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  _DP_DOWNLOAD_HANDLE
+    MODULE:  system.obj (SYSTEM)
+
+*** WARNING L1: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  ?_DP_DOWNLOAD_HANDLE?BYTE
+    MODULE:  system.obj (SYSTEM)
+
+*** WARNING L1: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  DOWNLOAD_CMD
+    MODULE:  system.obj (SYSTEM)
+
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  ?_MY_MEMCPY?BYTE
+    MODULE:  system.obj (SYSTEM)
+    ADDRESS: 0D09H
+BL51 BANKED LINKER/LOCATER V6.22                                                      03/23/2021  21:37:32  PAGE 11
+
+
+
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  ?_MY_MEMCPY?BYTE
+    MODULE:  system.obj (SYSTEM)
+    ADDRESS: 0D19H
+
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _MY_MEMCPY
+    MODULE:  system.obj (SYSTEM)
+    ADDRESS: 0D24H
+
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _UART_TRANSMIT_OUTPUT
+    MODULE:  system.obj (SYSTEM)
+    ADDRESS: 0E39H
+
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _MY_STRLEN
+    MODULE:  system.obj (SYSTEM)
+    ADDRESS: 0990H
+
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _MY_STRLEN
+    MODULE:  system.obj (SYSTEM)
+    ADDRESS: 09ABH
+
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _MY_STRLEN
+    MODULE:  system.obj (SYSTEM)
+    ADDRESS: 09C6H
+
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _MY_STRLEN
+    MODULE:  system.obj (SYSTEM)
+    ADDRESS: 09E9H
+
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _MY_STRLEN
+    MODULE:  system.obj (SYSTEM)
+    ADDRESS: 0A0CH
+
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _MY_STRLEN
+    MODULE:  system.obj (SYSTEM)
+    ADDRESS: 0A2FH
+
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _MY_STRLEN
+    MODULE:  system.obj (SYSTEM)
+    ADDRESS: 0A52H
+
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  GET_DOWNLOAD_CMD_TOTAL
+    MODULE:  system.obj (SYSTEM)
+    ADDRESS: 0F22H
+
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+BL51 BANKED LINKER/LOCATER V6.22                                                      03/23/2021  21:37:32  PAGE 12
+
+
+    SYMBOL:  DOWNLOAD_CMD
+    MODULE:  system.obj (SYSTEM)
+    ADDRESS: 0F2FH
+
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  DOWNLOAD_CMD
+    MODULE:  system.obj (SYSTEM)
+    ADDRESS: 0CABH
+
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  ?_DP_DOWNLOAD_HANDLE?BYTE
+    MODULE:  system.obj (SYSTEM)
+    ADDRESS: 0CD2H
+
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _DP_DOWNLOAD_HANDLE
+    MODULE:  system.obj (SYSTEM)
+    ADDRESS: 0CD9H
+
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  ALL_DATA_UPDATE
+    MODULE:  system.obj (SYSTEM)
+    ADDRESS: 0B51H
+
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _WIFI_TEST_RESULT
+    MODULE:  system.obj (SYSTEM)
+    ADDRESS: 0B66H
+
+******************************************************************************
+* RESTRICTED VERSION WITH 0800H BYTE CODE SIZE LIMIT; USED: 05CBH BYTE (72%) *
+******************************************************************************
+
+Program Size: data=9.0 xdata=185 code=1999
+LINK/LOCATE RUN COMPLETE.  31 WARNING(S),  0 ERROR(S)

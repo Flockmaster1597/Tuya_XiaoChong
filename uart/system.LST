@@ -1,0 +1,830 @@
+C51 COMPILER V9.00   SYSTEM                                                                03/23/2021 21:37:32 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE SYSTEM
+OBJECT MODULE PLACED IN system.OBJ
+COMPILER INVOKED BY: D:\Program Files\Keil\C51\BIN\C51.EXE system.c COMPACT BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          /**********************************Copyright (c)**********************************
+   2          **                       °æÈ¨ËùÓÐ (C), 2015-2020, Í¿Ñ»¿Æ¼¼
+   3          **
+   4          **                             http://www.tuya.com
+   5          **
+   6          *********************************************************************************/
+   7          /**
+   8           * @file    system.c
+   9           * @author  Í¿Ñ»×ÛºÏÐ­Òé¿ª·¢×é
+  10           * @version v2.5.6
+  11           * @date    2020.12.16
+  12           * @brief   ´®¿ÚÊý¾Ý´¦Àí£¬ÓÃ»§ÎÞÐè¹ØÐÄ¸ÃÎÄ¼þÊµÏÖÄÚÈÝ
+  13           */
+  14          
+  15          /****************************** ÃâÔðÉùÃ÷ £¡£¡£¡ *******************************
+  16          ÓÉÓÚMCUÀàÐÍºÍ±àÒë»·¾³¶àÖÖ¶àÑù£¬ËùÒÔ´Ë´úÂë½ö¹©²Î¿¼£¬ÓÃ»§Çë×ÔÐÐ°Ñ¿Ø×îÖÕ´úÂëÖÊÁ¿£¬
+  17          Í¿Ñ»²»¶ÔMCU¹¦ÄÜ½á¹û¸ºÔð¡£
+  18          ******************************************************************************/
+  19          
+  20          #define SYSTEM_GLOBAL
+  21          
+  22          #include "wifi.h"
+  23          
+  24          extern const DOWNLOAD_CMD_S download_cmd[];
+  25          
+  26          
+  27          
+  28          /**
+  29           * @brief  Ð´wifi_uart×Ö½Ú
+  30           * @param[in] {dest} »º´æÇøÆäÊµµØÖ·
+  31           * @param[in] {byte} Ð´Èë×Ö½ÚÖµ
+  32           * @return Ð´ÈëÍê³ÉºóµÄ×Ü³¤¶È
+  33           */
+  34          unsigned short set_wifi_uart_byte(unsigned short dest, unsigned char byte)
+  35          {
+  36   1          unsigned char *obj = (unsigned char *)wifi_uart_tx_buf + DATA_START + dest;
+  37   1          
+  38   1          *obj = byte;
+  39   1          dest += 1;
+  40   1          
+  41   1          return dest;
+  42   1      }
+  43          
+  44          /**
+  45           * @brief  Ð´wifi_uart_buffer
+  46           * @param[in] {dest} Ä¿±êµØÖ·
+  47           * @param[in] {src} Ô´µØÖ·
+  48           * @param[in] {len} Êý¾Ý³¤¶È
+  49           * @return Ð´Èë½áÊøµÄ»º´æµØÖ·
+  50           */
+  51          unsigned short set_wifi_uart_buffer(unsigned short dest, const unsigned char *src, unsigned short len)
+  52          {
+  53   1          unsigned char *obj = (unsigned char *)wifi_uart_tx_buf + DATA_START + dest;
+  54   1          
+  55   1          my_memcpy(obj,src,len);
+C51 COMPILER V9.00   SYSTEM                                                                03/23/2021 21:37:32 PAGE 2   
+
+  56   1          
+  57   1          dest += len;
+  58   1          return dest;
+  59   1      }
+  60          
+  61          /**
+  62           * @brief  ¼ÆËãÐ£ÑéºÍ
+  63           * @param[in] {pack} Êý¾ÝÔ´Ö¸Õë
+  64           * @param[in] {pack_len} ¼ÆËãÐ£ÑéºÍ³¤¶È
+  65           * @return Ð£ÑéºÍ
+  66           */
+  67          unsigned char get_check_sum(unsigned char *pack, unsigned short pack_len)
+  68          {
+  69   1          unsigned short i;
+  70   1          unsigned char check_sum = 0;
+  71   1          
+  72   1          for(i = 0; i < pack_len; i ++) {
+  73   2              check_sum += *pack ++;
+  74   2          }
+  75   1          
+  76   1          return check_sum;
+  77   1      }
+  78          
+  79          /**
+  80           * @brief  ´®¿Ú·¢ËÍÒ»¶ÎÊý¾Ý
+  81           * @param[in] {in} ·¢ËÍ»º´æÖ¸Õë
+  82           * @param[in] {len} Êý¾Ý·¢ËÍ³¤¶È
+  83           * @return Null
+  84           */
+  85          static void wifi_uart_write_data(unsigned char *in, unsigned short len)
+  86          {
+  87   1          if((NULL == in) || (0 == len)) {
+  88   2              return;
+  89   2          }
+  90   1          
+  91   1          while(len --) {
+  92   2              uart_transmit_output(*in);
+  93   2              in ++;
+  94   2          }
+  95   1      }
+  96          
+  97          /**
+  98           * @brief  Ïòwifi´®¿Ú·¢ËÍÒ»Ö¡Êý¾Ý
+  99           * @param[in] {fr_type} Ö¡ÀàÐÍ
+ 100           * @param[in] {fr_ver} Ö¡°æ±¾
+ 101           * @param[in] {len} Êý¾Ý³¤¶È
+ 102           * @return Null
+ 103           */
+ 104          void wifi_uart_write_frame(unsigned char fr_type, unsigned char fr_ver, unsigned short len)
+ 105          {
+ 106   1          unsigned char check_sum = 0;
+ 107   1          
+ 108   1          wifi_uart_tx_buf[HEAD_FIRST] = 0x55;
+ 109   1          wifi_uart_tx_buf[HEAD_SECOND] = 0xaa;
+ 110   1          wifi_uart_tx_buf[PROTOCOL_VERSION] = fr_ver;
+ 111   1          wifi_uart_tx_buf[FRAME_TYPE] = fr_type;
+ 112   1          wifi_uart_tx_buf[LENGTH_HIGH] = len >> 8;
+ 113   1          wifi_uart_tx_buf[LENGTH_LOW] = len & 0xff;
+ 114   1          
+ 115   1          len += PROTOCOL_HEAD;
+ 116   1          check_sum = get_check_sum((unsigned char *)wifi_uart_tx_buf, len - 1);
+ 117   1          wifi_uart_tx_buf[len - 1] = check_sum;
+C51 COMPILER V9.00   SYSTEM                                                                03/23/2021 21:37:32 PAGE 3   
+
+ 118   1          
+ 119   1          wifi_uart_write_data((unsigned char *)wifi_uart_tx_buf, len);
+ 120   1      }
+ 121          
+ 122          /**
+ 123           * @brief  ÐÄÌø°ü¼ì²â
+ 124           * @param  Null
+ 125           * @return Null
+ 126           */
+ 127          static void heat_beat_check(void)
+ 128          {
+ 129   1          unsigned char length = 0;
+ 130   1          static unsigned char mcu_reset_state = FALSE;
+ 131   1          
+ 132   1          if(FALSE == mcu_reset_state) {
+ 133   2              length = set_wifi_uart_byte(length, FALSE);
+ 134   2              mcu_reset_state = TRUE;
+ 135   2          }else {
+ 136   2              length = set_wifi_uart_byte(length, TRUE);
+ 137   2          }
+ 138   1          
+ 139   1          wifi_uart_write_frame(HEAT_BEAT_CMD, MCU_TX_VER, length);
+ 140   1      }
+ 141          
+ 142          /**
+ 143           * @brief  ²úÆ·ÐÅÏ¢ÉÏ´«
+ 144           * @param  Null
+ 145           * @return Null
+ 146           */
+ 147          static void product_info_update(void)
+ 148          {
+ 149   1          unsigned char length = 0;
+ 150   1          unsigned char str[10] = {0};
+ 151   1          
+ 152   1          length = set_wifi_uart_buffer(length, "{\"p\":\"", my_strlen("{\"p\":\""));
+ 153   1          length = set_wifi_uart_buffer(length,(unsigned char *)PRODUCT_KEY,my_strlen((unsigned char *)PRODUCT_K
+             -EY));
+ 154   1          length = set_wifi_uart_buffer(length, "\",\"v\":\"", my_strlen("\",\"v\":\""));
+ 155   1          length = set_wifi_uart_buffer(length,(unsigned char *)MCU_VER,my_strlen((unsigned char *)MCU_VER));
+ 156   1          length = set_wifi_uart_buffer(length, "\",\"m\":", my_strlen("\",\"m\":"));
+ 157   1          length = set_wifi_uart_buffer(length, (unsigned char *)CONFIG_MODE, my_strlen((unsigned char *)CONFIG_
+             -MODE));
+ 158   1      #ifdef CONFIG_MODE_DELAY_TIME
+                  sprintf((char *)str,",\"mt\":%d",CONFIG_MODE_DELAY_TIME);
+                  length = set_wifi_uart_buffer(length, str, my_strlen(str));
+              #endif
+ 162   1      #ifdef CONFIG_MODE_CHOOSE
+                  sprintf((char *)str,",\"n\":%d",CONFIG_MODE_CHOOSE);
+                  length = set_wifi_uart_buffer(length, str, my_strlen(str));
+              #endif
+ 166   1      #ifdef ENABLE_MODULE_IR_FUN
+                  sprintf((char *)str,",\"ir\":\"%d.%d\"",MODULE_IR_PIN_TX,MODULE_IR_PIN_RX);
+                  length = set_wifi_uart_buffer(length, str, my_strlen(str));
+              #endif
+ 170   1      #ifdef LONG_CONN_LOWPOWER
+                  sprintf((char *)str,",\"low\":%d",LONG_CONN_LOWPOWER);
+                  length = set_wifi_uart_buffer(length, str, my_strlen(str));
+              #endif
+ 174   1        
+ 175   1          length = set_wifi_uart_buffer(length, "}", my_strlen("}"));
+ 176   1          
+ 177   1          wifi_uart_write_frame(PRODUCT_INFO_CMD, MCU_TX_VER, length);
+C51 COMPILER V9.00   SYSTEM                                                                03/23/2021 21:37:32 PAGE 4   
+
+ 178   1      }
+ 179          
+ 180          /**
+ 181           * @brief  mcu²éÑ¯mcuºÍwifiµÄ¹¤×÷Ä£Ê½
+ 182           * @param  Null
+ 183           * @return Null
+ 184           */
+ 185          static void get_mcu_wifi_mode(void)
+ 186          {
+ 187   1          unsigned char length = 0;
+ 188   1          
+ 189   1      #ifdef WIFI_CONTROL_SELF_MODE                                   //Ä£¿é×Ô´¦Àí
+                  length = set_wifi_uart_byte(length, WF_STATE_KEY);
+                  length = set_wifi_uart_byte(length, WF_RESERT_KEY);
+              #else                                                           
+ 193   1          //No need to process data
+ 194   1      #endif
+ 195   1          
+ 196   1          wifi_uart_write_frame(WORK_MODE_CMD, MCU_TX_VER, length);
+ 197   1      }
+ 198          
+ 199          /**
+ 200           * @brief  »ñÈ¡ÖÆ¶¨DPIDÔÚÊý×éÖÐµÄÐòºÅ
+ 201           * @param[in] {dpid} dpid
+ 202           * @return dpÐòºÅ
+ 203           */
+ 204          static unsigned char get_dowmload_dpid_index(unsigned char dpid)
+ 205          {
+ 206   1          unsigned char index;
+ 207   1          unsigned char total = get_download_cmd_total();
+ 208   1          
+ 209   1          for(index = 0; index < total; index ++) {
+ 210   2              if(download_cmd[index].dp_id == dpid) {
+ 211   3                  break;
+ 212   3              }
+ 213   2          }
+ 214   1          
+ 215   1          return index;
+ 216   1      }
+ 217          
+ 218          /**
+ 219           * @brief  ÏÂ·¢Êý¾Ý´¦Àí
+ 220           * @param[in] {value} ÏÂ·¢Êý¾ÝÔ´Ö¸Õë
+ 221           * @return ·µ»ØÊý¾Ý´¦Àí½á¹û
+ 222           */
+ 223          static unsigned char data_point_handle(const unsigned char value[])
+ 224          {
+ 225   1          unsigned char dp_id,index;
+ 226   1          unsigned char dp_type;
+ 227   1          unsigned char ret;
+ 228   1          unsigned short dp_len;
+ 229   1          
+ 230   1          dp_id = value[0];
+ 231   1          dp_type = value[1];
+ 232   1          dp_len = value[2] * 0x100;
+ 233   1          dp_len += value[3];
+ 234   1          
+ 235   1          index = get_dowmload_dpid_index(dp_id);
+ 236   1      
+ 237   1          if(dp_type != download_cmd[index].dp_type) {
+ 238   2              //´íÎóÌáÊ¾
+ 239   2              return FALSE;
+C51 COMPILER V9.00   SYSTEM                                                                03/23/2021 21:37:32 PAGE 5   
+
+ 240   2          }else {
+ 241   2              ret = dp_download_handle(dp_id,value + 4,dp_len);
+ 242   2          }
+ 243   1          
+ 244   1          return ret;
+ 245   1      }
+ 246          
+ 247          #ifdef WEATHER_ENABLE
+              /**
+               * @brief  ÌìÆøÊý¾Ý½âÎö
+               * @param[in] {p_data} ½ÓÊÕÊý¾ÝÖ¸Õë
+               * @param[in] {data_len} ½ÓÊÕÊý¾Ý³¤¶È
+               * @return Null
+               */
+              static void weather_data_raw_handle(const unsigned char p_data[], unsigned short data_len)
+              {
+                  int i = 1;
+                  int can_len = 0; 
+                  char can[15] = {0};
+                  char day = 0;
+                  int type1 = 0;
+                  unsigned char value_string[100] = {0};
+                  int val_cnt = 0;
+                  int val_len = 0;
+                  
+                  if(p_data[0] != 1 || data_len < 1) {
+                      //½ÓÊÕÊ§°Ü
+                  }else {
+                      if(data_len < 4) {
+                          //Êý¾ÝÎª¿Õ
+                      }
+                      
+                      while (i < data_len) {
+                          can_len = p_data[i];
+                          
+                          my_memset(can, '\0', 15);
+                          my_memcpy(can, p_data + i + 1, can_len - 2);
+              
+                          day = p_data[i + can_len] - '0';
+              
+                          type1 = p_data[i + 1 + can_len];
+                          if(type1 != 0 && type1 != 1) {
+                              return;
+                          }
+              
+                          my_memset(value_string, '\0', 100);
+                          val_cnt = i + 1 + can_len + 1;
+                          val_len = p_data[val_cnt];
+                          if (type1 == 0) { //int32
+                              weather_data_user_handle(can+2, type1, p_data+val_cnt+1, day);
+                          }
+                          else if(type1 == 1) { //string
+                              my_memcpy(value_string, p_data + val_cnt + 1, val_len);
+                              weather_data_user_handle(can+2, type1, value_string, day);
+                          }
+              
+                          i += 1 + can_len + 1 + 1 + val_len;
+                      }
+                      
+                      wifi_uart_write_frame(WEATHER_DATA_CMD, 0, 0);
+                  }
+              }
+C51 COMPILER V9.00   SYSTEM                                                                03/23/2021 21:37:32 PAGE 6   
+
+              #endif
+ 303          
+ 304          #ifdef WIFI_STREAM_ENABLE
+              /**
+               * @brief  Á÷Êý¾Ý´«Êä
+               * @param[in] {id} Á÷·þÎñ±êÊ¶
+               * @param[in] {offset} Æ«ÒÆÁ¿
+               * @param[in] {buffer} Êý¾ÝµØÖ·
+               * @param[in] {buf_len} Êý¾Ý³¤¶È
+               * @return Null
+               * @note   Null
+               */
+              unsigned char stream_trans(unsigned short id, unsigned int offset, unsigned char *buffer, unsigned short b
+             -uf_len)
+              {
+                  unsigned short send_len = 0;
+              
+                  stream_status = 0xff;
+              
+                  if(stop_update_flag == ENABLE)
+                      return ERROR;
+              
+                  //ID
+                  send_len = set_wifi_uart_byte(send_len,id / 0x100);
+                  send_len = set_wifi_uart_byte(send_len,id % 0x100);
+                  //Offset
+                  send_len = set_wifi_uart_byte(send_len,offset >> 24);
+                  send_len = set_wifi_uart_byte(send_len,offset >> 16);
+                  send_len = set_wifi_uart_byte(send_len,offset >> 8);
+                  send_len = set_wifi_uart_byte(send_len,offset % 256);
+                  //data
+                  send_len = set_wifi_uart_buffer(send_len, buffer, buf_len);
+                  wifi_uart_write_frame(STREAM_TRANS_CMD, MCU_TX_VER, send_len);
+                  return SUCCESS;
+              }
+              
+              /**
+               * @brief  ¶àµØÍ¼Á÷Êý¾Ý´«Êä
+               * @param[in] {pro_ver} µØÍ¼·þÎñÐ­Òé°æ±¾
+               * @param[in] {id} µØÍ¼Á÷·þÎñ»á»°ID
+               * @param[in] {sub_id} ×ÓµØÍ¼ID
+               * @param[in] {sub_id_pro_mode} ×ÓµØÍ¼IDÊý¾Ý´¦Àí·½Ê½
+               * @ref           0x00:¼ÌÐøÀÛ¼Ó
+               * @ref           0x00:Çå³ýÉÏ´«µÄÊý¾Ý
+               * @param[in] {offset} Æ«ÒÆÁ¿
+               * @param[in] {buffer} Êý¾ÝµØÖ·
+               * @param[in] {buf_len} Êý¾Ý³¤¶È
+               * @return Null
+               * @note   Null
+               */
+              unsigned char maps_stream_trans(unsigned char pro_ver, unsigned short id, unsigned char sub_id, unsigned c
+             -har sub_id_pro_mode, 
+                                              unsigned int offset, unsigned char *buffer, unsigned short buf_len)
+              {
+                  unsigned short send_len = 0;
+              
+                  maps_stream_status = 0xff;
+              
+                  if(stop_update_flag == ENABLE)
+                      return ERROR;
+              
+                  //µØÍ¼·þÎñÐ­Òé°æ±¾
+C51 COMPILER V9.00   SYSTEM                                                                03/23/2021 21:37:32 PAGE 7   
+
+                  send_len = set_wifi_uart_byte(send_len, pro_ver);
+                  
+                  //µØÍ¼Á÷·þÎñ»á»°ID
+                  send_len = set_wifi_uart_byte(send_len,id / 0x100);
+                  send_len = set_wifi_uart_byte(send_len,id % 0x100);
+                  
+                  //×ÓµØÍ¼ID
+                  send_len = set_wifi_uart_byte(send_len, sub_id);
+                  
+                  //×ÓµØÍ¼IDÊý¾Ý´¦Àí·½Ê½
+                  send_len = set_wifi_uart_byte(send_len, sub_id_pro_mode);
+                  
+                  //Æ«ÒÆÁ¿
+                  send_len = set_wifi_uart_byte(send_len,offset >> 24);
+                  send_len = set_wifi_uart_byte(send_len,offset >> 16);
+                  send_len = set_wifi_uart_byte(send_len,offset >> 8);
+                  send_len = set_wifi_uart_byte(send_len,offset % 256);
+                  //Data
+                  send_len = set_wifi_uart_buffer(send_len, buffer, buf_len);
+                  wifi_uart_write_frame(MAPS_STREAM_TRANS_CMD, MCU_TX_VER, send_len);
+                  return SUCCESS;
+              }
+              #endif
+ 385          
+ 386          /**
+ 387           * @brief  Êý¾ÝÖ¡´¦Àí
+ 388           * @param[in] {offset} Êý¾ÝÆðÊ¼Î»
+ 389           * @return Null
+ 390           */
+ 391          void data_handle(unsigned short offset)
+ 392          {
+ 393   1      #ifdef SUPPORT_MCU_FIRM_UPDATE
+                  unsigned char *firmware_addr = NULL;
+                  static unsigned short firm_size;                                            //Éý¼¶°üÒ»°üµÄ´óÐ¡
+                  static unsigned long firm_length;                                           //MCUÉý¼¶ÎÄ¼þ³¤¶È
+                  static unsigned char firm_update_flag = 0;                                  //MCUÉý¼¶±êÖ¾
+                  unsigned long dp_len;
+                  unsigned char firm_flag;                                                    //Éý¼¶°ü´óÐ¡±êÖ¾
+              #else
+ 401   1          unsigned short dp_len;
+ 402   1      #endif
+ 403   1        
+ 404   1          unsigned char ret;
+ 405   1          unsigned short i,total_len;
+ 406   1          unsigned char cmd_type = wifi_data_process_buf[offset + FRAME_TYPE];
+ 407   1          unsigned char result;
+ 408   1      
+ 409   1      #ifdef WEATHER_ENABLE
+                  static unsigned char isWoSend = 0;                                          //ÊÇ·ñÒÑ¾­´ò¿ª¹ýÌìÆøÊý¾Ý, 
+             -0:·ñ  1:ÊÇ
+              #endif
+ 412   1      
+ 413   1      #ifdef WIFI_TEST_ENABLE
+ 414   1          unsigned char rssi;
+ 415   1      #endif
+ 416   1      
+ 417   1      #ifdef FILE_DOWNLOAD_ENABLE
+                  unsigned char *file_data_addr = NULL;
+                  static unsigned short file_package_size = 0;                                //ÎÄ¼þÊý¾Ý°üÒ»°üµÄ´óÐ¡
+                  static unsigned char file_download_flag = 0;                                //ÎÄ¼þÏÂÔØ±êÖ¾
+                  unsigned int file_download_size = 0;
+              #endif
+C51 COMPILER V9.00   SYSTEM                                                                03/23/2021 21:37:32 PAGE 8   
+
+ 423   1      
+ 424   1          switch(cmd_type)
+ 425   1          {
+ 426   2              case HEAT_BEAT_CMD:                                     //ÐÄÌø°ü
+ 427   2                  heat_beat_check();
+ 428   2              break;
+ 429   2          
+ 430   2              case PRODUCT_INFO_CMD:                                  //²úÆ·ÐÅÏ¢
+ 431   2                  product_info_update();
+ 432   2              break;
+ 433   2          
+ 434   2              case WORK_MODE_CMD:                                     //²éÑ¯MCUÉè¶¨µÄÄ£¿é¹¤×÷Ä£Ê½
+ 435   2                  get_mcu_wifi_mode();
+ 436   2              break;
+ 437   2          
+ 438   2      #ifndef WIFI_CONTROL_SELF_MODE
+ 439   2              case WIFI_STATE_CMD:                                    //wifi¹¤×÷×´Ì¬  
+ 440   2                  wifi_work_state = wifi_data_process_buf[offset + DATA_START];
+ 441   2                  wifi_uart_write_frame(WIFI_STATE_CMD, MCU_TX_VER, 0);
+ 442   2      #ifdef WEATHER_ENABLE
+                          if(wifi_work_state == WIFI_CONNECTED && isWoSend == 0) { //µ±WIFIÁ¬½Ó³É¹¦£¬´ò¿ªÌìÆøÊý¾ÝÇÒ½öÒ»´
+             -Î
+                              mcu_open_weather();
+                              isWoSend = 1;
+                          }
+              #endif
+ 448   2              break;
+ 449   2      
+ 450   2              case WIFI_RESET_CMD:                                    //ÖØÖÃwifi(wifi·µ»Ø³É¹¦)
+ 451   2                  reset_wifi_flag = RESET_WIFI_SUCCESS;
+ 452   2              break;
+ 453   2          
+ 454   2              case WIFI_MODE_CMD:                                     //Ñ¡Ôñsmartconfig/APÄ£Ê½(wifi·µ»Ø³É¹¦)  
+ 455   2                  set_wifimode_flag = SET_WIFICONFIG_SUCCESS;
+ 456   2              break;
+ 457   2      #endif
+ 458   2          
+ 459   2              case DATA_QUERT_CMD:                                    //ÃüÁîÏÂ·¢
+ 460   2                  total_len = (wifi_data_process_buf[offset + LENGTH_HIGH] << 8) | wifi_data_process_buf[offset 
+             -+ LENGTH_LOW];
+ 461   2          
+ 462   2                  for(i = 0;i < total_len; ) {
+ 463   3                      dp_len = wifi_data_process_buf[offset + DATA_START + i + 2] * 0x100;
+ 464   3                      dp_len += wifi_data_process_buf[offset + DATA_START + i + 3];
+ 465   3                      //
+ 466   3                      ret = data_point_handle((unsigned char *)wifi_data_process_buf + offset + DATA_START + i);
+ 467   3            
+ 468   3                      if(SUCCESS == ret) {
+ 469   4                          //³É¹¦ÌáÊ¾
+ 470   4                      }else {
+ 471   4                          //´íÎóÌáÊ¾
+ 472   4                      }
+ 473   3            
+ 474   3                      i += (dp_len + 4);
+ 475   3                  }
+ 476   2              break;
+ 477   2          
+ 478   2              case STATE_QUERY_CMD:                                   //×´Ì¬²éÑ¯
+ 479   2                  all_data_update();                               
+ 480   2              break;
+ 481   2          
+ 482   2      #ifdef SUPPORT_MCU_FIRM_UPDATE
+C51 COMPILER V9.00   SYSTEM                                                                03/23/2021 21:37:32 PAGE 9   
+
+                      case UPDATE_START_CMD:                                  //Éý¼¶¿ªÊ¼
+                          //»ñÈ¡Éý¼¶°ü´óÐ¡È«¾Ö±äÁ¿
+                          firm_flag = PACKAGE_SIZE;
+                          if(firm_flag == 0) {
+                              firm_size = 256;
+                          }else if(firm_flag == 1) {
+                              firm_size = 512;
+                          }else if(firm_flag == 2) { 
+                              firm_size = 1024;
+                          }
+              
+                          firm_length = wifi_data_process_buf[offset + DATA_START];
+                          firm_length <<= 8;
+                          firm_length |= wifi_data_process_buf[offset + DATA_START + 1];
+                          firm_length <<= 8;
+                          firm_length |= wifi_data_process_buf[offset + DATA_START + 2];
+                          firm_length <<= 8;
+                          firm_length |= wifi_data_process_buf[offset + DATA_START + 3];
+                          
+                          upgrade_package_choose(PACKAGE_SIZE);
+                          firm_update_flag = UPDATE_START_CMD;
+                      break;
+                  
+                      case UPDATE_TRANS_CMD:                                  //Éý¼¶´«Êä
+                          if(firm_update_flag == UPDATE_START_CMD) {
+                              //Í£Ö¹Ò»ÇÐÊý¾ÝÉÏ±¨
+                              stop_update_flag = ENABLE;
+                    
+                              total_len = (wifi_data_process_buf[offset + LENGTH_HIGH] << 8) | wifi_data_process_buf[off
+             -set + LENGTH_LOW];
+                    
+                              dp_len = wifi_data_process_buf[offset + DATA_START];
+                              dp_len <<= 8;
+                              dp_len |= wifi_data_process_buf[offset + DATA_START + 1];
+                              dp_len <<= 8;
+                              dp_len |= wifi_data_process_buf[offset + DATA_START + 2];
+                              dp_len <<= 8;
+                              dp_len |= wifi_data_process_buf[offset + DATA_START + 3];
+                    
+                              firmware_addr = (unsigned char *)wifi_data_process_buf;
+                              firmware_addr += (offset + DATA_START + 4);
+                    
+                              if((total_len == 4) && (dp_len == firm_length)) {
+                                  //×îºóÒ»°ü
+                                  ret = mcu_firm_update_handle(firmware_addr,dp_len,0);
+                                  firm_update_flag = 0;
+                              }else if((total_len - 4) <= firm_size) {
+                                  ret = mcu_firm_update_handle(firmware_addr,dp_len,total_len - 4);
+                              }else {
+                                  firm_update_flag = 0;
+                                  ret = ERROR;
+                              }
+                    
+                              if(ret == SUCCESS) {
+                                  wifi_uart_write_frame(UPDATE_TRANS_CMD, MCU_TX_VER, 0);
+                              }
+                              //»Ö¸´Ò»ÇÐÊý¾ÝÉÏ±¨
+                              stop_update_flag = DISABLE;
+                          }
+                      break;
+              #endif      
+ 543   2      
+C51 COMPILER V9.00   SYSTEM                                                                03/23/2021 21:37:32 PAGE 10  
+
+ 544   2      #ifdef SUPPORT_GREEN_TIME
+                      case GET_ONLINE_TIME_CMD:                               //»ñÈ¡¸ñÁÖÊ±¼ä
+                          mcu_get_greentime((unsigned char *)(wifi_data_process_buf + offset + DATA_START));
+                      break;
+              #endif
+ 549   2      
+ 550   2      #ifdef SUPPORT_MCU_RTC_CHECK
+                      case GET_LOCAL_TIME_CMD:                               //»ñÈ¡±¾µØÊ±¼ä
+                          mcu_write_rtctime((unsigned char *)(wifi_data_process_buf + offset + DATA_START));
+                      break;
+              #endif
+ 555   2       
+ 556   2      #ifdef WIFI_TEST_ENABLE
+ 557   2              case WIFI_TEST_CMD:                                     //wifi¹¦ÄÜ²âÊÔ£¨É¨ÃèÖ¸¶¨Â·ÓÉ£©
+ 558   2                  result = wifi_data_process_buf[offset + DATA_START];
+ 559   2                  rssi = wifi_data_process_buf[offset + DATA_START + 1];
+ 560   2                  wifi_test_result(result, rssi);
+ 561   2              break;
+ 562   2      #endif
+ 563   2      
+ 564   2      #ifdef WEATHER_ENABLE
+                      case WEATHER_OPEN_CMD:                                  //´ò¿ªÌìÆø·þÎñ·µ»Ø
+                          weather_open_return_handle(wifi_data_process_buf[offset + DATA_START], wifi_data_process_buf[o
+             -ffset + DATA_START + 1]);
+                      break;
+                  
+                      case WEATHER_DATA_CMD:                                  //ÌìÆøÊý¾ÝÏÂ·¢
+                          total_len = (wifi_data_process_buf[offset + LENGTH_HIGH] << 8) | wifi_data_process_buf[offset 
+             -+ LENGTH_LOW];
+                          weather_data_raw_handle((unsigned char *)wifi_data_process_buf + offset + DATA_START, total_le
+             -n);
+                      break;
+              #endif
+ 574   2      
+ 575   2      #ifdef WIFI_STREAM_ENABLE
+                      case STREAM_TRANS_CMD:                                  //Á÷·þÎñ
+                          stream_status = wifi_data_process_buf[offset + DATA_START];//Á÷·þÎñ´«Êä·µ»Ø½ÓÊÕ
+                          stream_trans_send_result(stream_status);
+                      break;
+                      
+                      case MAPS_STREAM_TRANS_CMD:                             //Á÷Êý¾Ý´«Êä(Ö§³Ö¶àÕÅµØÍ¼)
+                          maps_stream_status = wifi_data_process_buf[offset + DATA_START];//Á÷·þÎñ´«Êä·µ»Ø½ÓÊÕ
+                          maps_stream_trans_send_result(maps_stream_status);
+                      break;
+              #endif
+ 586   2      
+ 587   2      #ifdef WIFI_CONNECT_TEST_ENABLE
+                      case WIFI_CONNECT_TEST_CMD:                             //wifi¹¦ÄÜ²âÊÔ£¨Á¬½ÓÖ¸¶¨Â·ÓÉ£©
+                          result = wifi_data_process_buf[offset + DATA_START];
+                          wifi_connect_test_result(result);
+                      break;
+              #endif
+ 593   2      
+ 594   2      #ifdef GET_MODULE_MAC_ENABLE
+                      case GET_MAC_CMD:                                       //»ñÈ¡Ä£¿émac
+                          mcu_get_mac((unsigned char *)(wifi_data_process_buf + offset + DATA_START));
+                      break;
+              #endif
+ 599   2      
+ 600   2      #ifdef GET_WIFI_STATUS_ENABLE
+                      case GET_WIFI_STATUS_CMD:                               //»ñÈ¡µ±Ç°wifiÁªÍø×´Ì¬
+                          result = wifi_data_process_buf[offset + DATA_START];
+C51 COMPILER V9.00   SYSTEM                                                                03/23/2021 21:37:32 PAGE 11  
+
+                          get_wifi_status(result);
+                      break;
+              #endif
+ 606   2      
+ 607   2      #ifdef MCU_DP_UPLOAD_SYN
+                      case STATE_UPLOAD_SYN_RECV_CMD:                         //×´Ì¬ÉÏ±¨£¨Í¬²½£©
+                          result = wifi_data_process_buf[offset + DATA_START];
+                          get_upload_syn_result(result);
+                      break;
+              #endif
+ 613   2      
+ 614   2      #ifdef GET_IR_STATUS_ENABLE
+                      case GET_IR_STATUS_CMD:                                 //ºìÍâ×´Ì¬Í¨Öª
+                          result = wifi_data_process_buf[offset + DATA_START];
+                          get_ir_status(result);
+                      break;
+              #endif
+ 620   2            
+ 621   2      #ifdef IR_TX_RX_TEST_ENABLE
+                      case IR_TX_RX_TEST_CMD:                                 //ºìÍâ½øÈëÊÕ·¢²ú²â
+                          result = wifi_data_process_buf[offset + DATA_START];
+                          ir_tx_rx_test_result(result);
+                      break;
+              #endif
+ 627   2              
+ 628   2      #ifdef FILE_DOWNLOAD_ENABLE
+                      case FILE_DOWNLOAD_START_CMD:                           //ÎÄ¼þÏÂÔØÆô¶¯
+                          //»ñÈ¡ÎÄ¼þ°ü´óÐ¡Ñ¡Ôñ
+                          if(FILE_DOWNLOAD_PACKAGE_SIZE == 0) {
+                              file_package_size = 256;
+                          }else if(FILE_DOWNLOAD_PACKAGE_SIZE == 1) {
+                              file_package_size = 512;
+                          }else if(FILE_DOWNLOAD_PACKAGE_SIZE == 2) { 
+                              file_package_size = 1024;
+                          }
+                          
+                          file_download_size = wifi_data_process_buf[offset + DATA_START];
+                          file_download_size = (file_download_size << 8) |  wifi_data_process_buf[offset + DATA_START + 
+             -1];
+                          file_download_size = (file_download_size << 8) |  wifi_data_process_buf[offset + DATA_START + 
+             -2];
+                          file_download_size = (file_download_size << 8) |  wifi_data_process_buf[offset + DATA_START + 
+             -3];
+                      
+                          file_download_package_choose(FILE_DOWNLOAD_PACKAGE_SIZE);
+                          file_download_flag = FILE_DOWNLOAD_START_CMD;
+                      break;
+                      
+                      case FILE_DOWNLOAD_TRANS_CMD:                           //ÎÄ¼þÏÂÔØÊý¾Ý´«Êä
+                          if(file_download_flag == FILE_DOWNLOAD_START_CMD) {
+                              total_len = (wifi_data_process_buf[offset + LENGTH_HIGH] << 8) | wifi_data_process_buf[off
+             -set + LENGTH_LOW];
+                    
+                              dp_len = wifi_data_process_buf[offset + DATA_START];
+                              dp_len <<= 8;
+                              dp_len |= wifi_data_process_buf[offset + DATA_START + 1];
+                              dp_len <<= 8;
+                              dp_len |= wifi_data_process_buf[offset + DATA_START + 2];
+                              dp_len <<= 8;
+                              dp_len |= wifi_data_process_buf[offset + DATA_START + 3];
+                    
+                              file_data_addr = (unsigned char *)wifi_data_process_buf;
+C51 COMPILER V9.00   SYSTEM                                                                03/23/2021 21:37:32 PAGE 12  
+
+                              file_data_addr += (offset + DATA_START + 4);
+                    
+                              if((total_len == 4) && (dp_len == file_download_size)) {
+                                  //×îºóÒ»°ü
+                                  ret = file_download_handle(file_data_addr,dp_len,0);
+                                  file_download_flag = 0;
+                              }
+                              else if((total_len - 4) <= file_package_size) {
+                                  ret = file_download_handle(file_data_addr,dp_len,total_len - 4);
+                              }else {
+                                  file_download_flag = 0;
+                                  ret = ERROR;
+                              }
+                    
+                              if(ret == SUCCESS) {
+                                  wifi_uart_write_frame(FILE_DOWNLOAD_TRANS_CMD, MCU_TX_VER, 0);
+                              }
+                          }
+                      break;
+              #endif
+ 681   2              
+ 682   2      #ifdef MODULE_EXPANDING_SERVICE_ENABLE
+                      case MODULE_EXTEND_FUN_CMD:                             //Ä£¿éÍØÕ¹·þÎñ
+                          total_len = (wifi_data_process_buf[offset + LENGTH_HIGH] << 8) | wifi_data_process_buf[offset 
+             -+ LENGTH_LOW];
+                          open_module_time_serve_result((unsigned char *)(wifi_data_process_buf + offset + DATA_START), 
+             -total_len);
+                      break;
+              #endif
+ 688   2      
+ 689   2      #ifdef BLE_RELATED_FUNCTION_ENABLE
+                      case BLE_TEST_CMD:                                      //À¶ÑÀ¹¦ÄÜÐÔ²âÊÔ£¨É¨ÃèÖ¸¶¨À¶ÑÀÐÅ±ê£©
+                          total_len = (wifi_data_process_buf[offset + LENGTH_HIGH] << 8) | wifi_data_process_buf[offset 
+             -+ LENGTH_LOW];
+                          BLE_test_result((unsigned char *)(wifi_data_process_buf + offset + DATA_START), total_len);
+                      break;
+              #endif
+ 695   2      
+ 696   2                  
+ 697   2      #ifdef VOICE_MODULE_PROTOCOL_ENABLE
+                      case GET_VOICE_STATE_CMD:                               //»ñÈ¡ÓïÒô×´Ì¬Âë
+                          result = wifi_data_process_buf[offset + DATA_START];
+                          get_voice_state_result(result);
+                      break;
+                      case MIC_SILENCE_CMD:                                   //MIC¾²ÒôÉèÖÃ
+                          result = wifi_data_process_buf[offset + DATA_START];
+                          set_voice_MIC_silence_result(result);
+                      break;
+                      case SET_SPEAKER_VOLUME_CMD:                            //speakerÒôÁ¿ÉèÖÃ
+                          result = wifi_data_process_buf[offset + DATA_START];
+                          set_speaker_voice_result(result);
+                      break;
+                      case VOICE_TEST_CMD:                                    //ÓïÒôÄ£×éÒôÆµ²ú²â
+                          result = wifi_data_process_buf[offset + DATA_START];
+                          voice_test_result(result);
+                      break;
+                      case VOICE_AWAKEN_TEST_CMD:                             //ÓïÒôÄ£×é»½ÐÑ²ú²â
+                          result = wifi_data_process_buf[offset + DATA_START];
+                          voice_awaken_test_result(result);
+                      break;
+                      case VOICE_EXTEND_FUN_CMD:                              //ÓïÒôÄ£×éÀ©Õ¹¹¦ÄÜ
+                          total_len = (wifi_data_process_buf[offset + LENGTH_HIGH] << 8) | wifi_data_process_buf[offset 
+C51 COMPILER V9.00   SYSTEM                                                                03/23/2021 21:37:32 PAGE 13  
+
+             -+ LENGTH_LOW];
+                          voice_module_extend_fun((unsigned char *)(wifi_data_process_buf + offset + DATA_START), total_
+             -len);
+                      break;
+              #endif
+ 723   2              
+ 724   2      
+ 725   2              default:break;
+ 726   2          }
+ 727   1      }
+ 728          
+ 729          /**
+ 730           * @brief  ÅÐ¶Ï´®¿Ú½ÓÊÕ»º´æÖÐÊÇ·ñÓÐÊý¾Ý
+ 731           * @param  Null
+ 732           * @return ÊÇ·ñÓÐÊý¾Ý
+ 733           */
+ 734          unsigned char with_data_rxbuff(void)
+ 735          {
+ 736   1          if(rx_buf_in != rx_buf_out)
+ 737   1              return 1;
+ 738   1          else
+ 739   1              return 0;
+ 740   1      }
+ 741          
+ 742          /**
+ 743           * @brief  ¶ÁÈ¡¶ÓÁÐ1×Ö½ÚÊý¾Ý
+ 744           * @param  Null
+ 745           * @return Read the data
+ 746           */
+ 747          unsigned char take_byte_rxbuff(void)
+ 748          {
+ 749   1          unsigned char value;
+ 750   1          
+ 751   1          if(rx_buf_out != rx_buf_in) {
+ 752   2              //ÓÐÊý¾Ý
+ 753   2              if(rx_buf_out >= (unsigned char *)(wifi_uart_rx_buf + sizeof(wifi_uart_rx_buf))) {
+ 754   3                  //Êý¾ÝÒÑ¾­µ½Ä©Î²
+ 755   3                  rx_buf_out = (unsigned char *)(wifi_uart_rx_buf);
+ 756   3              }
+ 757   2              
+ 758   2              value = *rx_buf_out ++;   
+ 759   2          }
+ 760   1          
+ 761   1          return value;
+ 762   1      }
+ 763          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1210    ----
+   CONSTANT SIZE    =     59    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =    120      50
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

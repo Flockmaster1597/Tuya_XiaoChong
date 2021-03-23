@@ -1,0 +1,123 @@
+C51 COMPILER V9.00   MAIN                                                                  03/23/2021 21:37:31 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN main.OBJ
+COMPILER INVOKED BY: D:\Program Files\Keil\C51\BIN\C51.EXE main.c COMPACT BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include <reg51.h>
+   2          #include <intrins.h>
+   3          
+   4          #include "wifi.h"
+   5          
+   6          unsigned  char tmp;
+   7          //<< code关键字使数组内容不可被改变
+   8          char code str_get[] = {0x7F, 0x05, 0x12, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x1A};
+   9          char code str_send[] = {0x7F, 0x05, 0x12, 0x01, 0x05, 0x00, 0x00, 0x00, 0x03, 0x20};
+  10          char temparray[10] = {0};
+  11          sbit K1 = P2^7;
+  12          unsigned char j = 0;
+  13          
+  14          void send_str();
+  15          void get_str();
+  16          void delayms(unsigned char ms);
+  17          void send_char(unsigned char txd);
+  18          
+  19          void main(void)
+  20          {
+  21   1              unsigned char count, flag, emptycount = 0;
+  22   1              TMOD = 0x20;                    // 定时器1工作于8位自动重载模式, 用于产生波特率
+  23   1              TH1 = 0xFD;                             // 波特率9600  11.0592
+  24   1              TL1 = 0xFD;     
+  25   1              SCON = 0x50;                    // 设定串行口工作方式
+  26   1              //PCON |= 0x80;                 // 波特率倍增     4800
+  27   1              TR1 = 1;                                // 启动定时器1
+  28   1              IE = 0x0;                               // 禁止任何中断
+  29   1              while(1)
+  30   1              {
+  31   2                      //wifi_uart_service();
+  32   2                      //wifi_protocol_init();
+  33   2                      if(!K1)         // 扫描按键
+  34   2                      {
+  35   3                              delayms(10);                    // 延时去抖动
+  36   3                              if(K1)
+  37   3                                      break;
+  38   3                              while(!K1)
+  39   3                              {
+  40   4                                      delayms(10);
+  41   4                              }
+  42   3                              send_str();     
+  43   3                      }
+  44   2                      get_str();
+  45   2      
+  46   2                      for(count = 0; count < 9; count++)
+  47   2                      {
+  48   3                          if(temparray[count] == str_get[count])
+  49   3                              {
+  50   4                                  flag = 1;  
+  51   4                              }
+  52   3                              else
+  53   3                              {
+  54   4                      flag = 0;
+  55   4                                      count = 0;
+C51 COMPILER V9.00   MAIN                                                                  03/23/2021 21:37:31 PAGE 2   
+
+  56   4                                      //<<添加break，否则flag值将由最后一个元素决定
+  57   4                                      break;
+  58   4                              }
+  59   3                      }
+  60   2                      if((j == 10) && (flag == 1))
+  61   2                      {
+  62   3                          send_str();
+  63   3                              j = 0; 
+  64   3                              count = 0;
+  65   3                      }               
+  66   2              }
+  67   1      }
+  68          
+  69          void send_str()
+  70          {
+  71   1          unsigned char i = 0;
+  72   1          while(i < 10)
+  73   1          {
+  74   2                      SBUF = str_send[i];
+  75   2                      while(!TI);                             // 等特数据传送
+  76   2                      TI = 0;                                 // 清除数据传送标志
+  77   2                      i++;                                    // 下一个字符
+  78   2         }    
+  79   1      }
+  80          
+  81          void get_str()
+  82          {
+  83   1              if(RI)                                          // 是否有数据到来
+  84   1              {
+  85   2                      RI = 0;
+  86   2                      temparray[j++] = SBUF;  // 暂存接收到的数据
+  87   2              }                   
+  88   1      }
+  89          
+  90          void delayms(unsigned char ms)  
+  91          {                                               
+  92   1          unsigned char i;
+  93   1          while(ms--)
+  94   1          {
+  95   2                  for(i = 0; i < 120; i++);
+  96   2          }
+  97   1      }
+  98              
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    176    ----
+   CONSTANT SIZE    =     20    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =     12       3
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
